@@ -39,4 +39,3 @@ methTrials = [101:136]; %specify for each particular mouse
 bls = mean(meanFR(:, blsTrials),2);
 meth = mean(meanFR(:, methTrials),2);
 [p,h] = signrank(bls, meth)
-
