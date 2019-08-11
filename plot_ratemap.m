@@ -1,13 +1,17 @@
 function plot_ratemap(FRS, cellID, cellnumber, colbar, scale, nperfig, nfigcol)
-%% This function is used to plot firing rate map of longitudinally tracked neurons
+% This function is used to plot firing rate map of linear track virtual
+% reality data
 % Inputs:
-% (1) neuronIndividualsf: a cell array of neuron data across different days, each cell is a source2D variable. Obtained by CNMF-E
-% (2) behavIndividualsf: a cell array of filtered behavior data, obtained by using Tristan's code
-% (3) firinrateAll: a cell array of firing rates of all the neurons across all the recording days
-% (4) cellnumber: IDs of the cell that want to be plotted, e.g. 1:size(neuron.trace,1)
-% (5) thresh: a vector contains cut off threshold of calcium signals for each neuron, usually defined as 2*SD of neuron.S or neuron.trace
-% (6) dataType: 'S' or 'trace'
-% (7) scale: max heatmap ploting scale (Hz); use 'auto' if want to plot as the max firing rate of each individual cell
+% FRS: cell array, smoothed firing rate of all the neurons
+% cellID: a vector of identified good neurons
+% cellnumber: range of plot, all neurons by default
+% colbar: logical, plot with color bar or not
+% scale: define max heatmap color scale, if 'auto', color scale align to
+% max peak firing rate of each neuron
+% nperfig: max number of neurons plot in each figure
+% nfigcol: max number of columns plot in each figure
+% @Yanjun Sun, Stanford University, 8/10/2019
+
 if ~exist('nfigcol', 'var') || isempty(nfigcol);
     nfigcol = 10;
 end
@@ -29,10 +33,11 @@ if ~exist(folderName,'dir')
     mkdir(folderName);
 end
 fpath=folderName;
-
-Pix_SS = get(0,'screensize');
-n = 0;
 %% plot rate map figures
+% get the size of monitor to define figure size
+Pix_SS = get(0,'screensize');
+% start to plot
+n = 0;
 for ii = 1:ceil(length(cellnumber)/nperfig)
 k = 0;
 ax = figure;
