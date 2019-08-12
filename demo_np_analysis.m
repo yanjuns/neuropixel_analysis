@@ -3,8 +3,8 @@
 matPath = 'C:\Users\yanjuns\Desktop\Yanjun Data\Miniscope_CPP_analysis\Neuropixels\E1_190619_johnrepeatingtrack_train100+meth37.mat'
 trackLength = 640 %John Wen's extended track
 trials_per_block = 10;
-[S, T, FR, FRS, corrMatrix, S_block, T_block, FR_block, FRS_block, corrBlock, cellID]...
-    = get_ratemap_n_corr(matPath, trackLength, trials_per_block);
+[S, T, FR, FRS, corrMatrix, S_block, T_block, FR_block, FRS_block, corrBlock, cellID, speed]...
+    = get_ratemap_n_corr(matPath, trackLength, trials_per_block, false);
 % get mean firing rate for each cell and each trial
 meanFR = NaN(size(S,2), size(T,1));
 for ii = 1:size(S,2);
@@ -29,7 +29,7 @@ colormap pink
 
 %% plot ratemap and mean firing rate
 figure;
-plot(std(meanFR));
+plot(mean(meanFR));
 xlabel('Trials');
 ylabel('Avg Firing Rate of all neurons (Hz)');
 

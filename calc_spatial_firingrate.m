@@ -1,4 +1,4 @@
-function [spikeCount, occTime, firing_rate, firing_rate_sth] = calc_spatial_firingrate(idx, posx, trial, ntrial, p, TrackEnd)
+function [spikeCount, occTime, firing_rate, firing_rate_sth] = calc_spatial_firingrate(idx, posx, post, trial, ntrial, p, TrackEnd)
 % calculates smoothed firing rate on linear track
 % Malcolm Campbell 5/21/15
 % modified 6/6/18 MGC
@@ -23,7 +23,7 @@ end
 if ~exist('p', 'var') || isempty(p);
     TrackStart = 0;
     SpatialBin = 5;
-    TimeBin = 0.02;
+    TimeBin = median(diff(post));
     SmoothSigmaFR = 15;
 else
     TrackStart = p.TrackStart;

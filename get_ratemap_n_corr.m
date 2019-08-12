@@ -1,5 +1,5 @@
-function [S, T, FR, FRS, corrMatrix, S_block, T_block, FR_block, FRS_block, corrBlock, cells_to_plot]...
-    = get_ratemap_n_corr(matPath, trackLength, trials_per_block, paramsPath)
+function [S, T, FR, FRS, corrMatrix, S_block, T_block, FR_block, FRS_block, corrBlock, cells_to_plot, speed]...
+    = get_ratemap_n_corr(matPath, trackLength, trials_per_block, filterspeed, speedthresh, paramsPath)
 
 % John Wen 7/1/19
 % Kei Masuda 7/3/19
@@ -24,17 +24,24 @@ function [S, T, FR, FRS, corrMatrix, S_block, T_block, FR_block, FRS_block, corr
 %     corrMatrix: all the correlation matrix for each individual trial each
 %     neuron
 
+if ~exist('speedthresh', 'var') || isempty(speedthresh)
+    speedthresh = 2; %cm/s
+end
+if ~exist('filterspeed', 'var') || isempty(filterspeed)
+    filterspeed = true;
+end
+
 %% Load .mat and params files
 % load specific components from .mat file
 load(fullfile(matPath), 'post','posx','sp','trial'); 
 
 % load params file
-if ~exist('paramsPath','var')
-    addpath(genpath('/Volumes/groups/giocomo/export/data/Projects/JohnKei_NPH3/UniversalParams'));
-    params = readtable('UniversalParams.xlsx');
-else
-    params = readtable(paramsPath);
-end
+% if ~exist('paramsPath','var')
+%     addpath(genpath('C:\Users\yanjuns\Desktop\MATLAB_code_Git\neuropixel_analysis'));
+%     params = readtable('UniversalParams.xlsx');
+% else
+%     params = readtable(paramsPath);
+% end
 
 %% calculate firing rates for only good cells
 cells_to_plot = sp.cids(sp.cgs==2); 
@@ -43,7 +50,7 @@ nCells = size(cells_to_plot, 2);
 %% Calculate firing rates
 % specify inputs into the firing rates calculation
 trackEnd = trackLength;
-p = params;
+% p = params;
 
 % calculate the firing rate for a single cell across all trials
 S = cell(1,nCells);
@@ -57,41 +64,74 @@ FR_block = cell(1,nCells);
 FRS_block = cell(1,nCells);
 corrBlock = [];
 numTrial = max(trial);
+speed = calcSpeed(posx,post);
+%prepare for filtering slow speed frames
+posxf = posx; posxf(speed < speedthresh) = NaN; 
+slowf = find(speed < speedthresh);
 
-for k = 1:nCells;
+for k = 1:nCells
     fprintf('cell %d (%d/%d)\n',cells_to_plot(k),k,numel(cells_to_plot));
     % get spike times and index into post for cell k 
     spike_t = sp.st(sp.clu==cells_to_plot(k)); 
     [~,~,spike_idx] = histcounts(spike_t,post);
 %     [~,~,spikeTrial_idx] = histcounts(spike_t,trial); % NOT SURE IF WE STILL NEED THIS
-    
-    % for cell k, iteratively calculate the firing rate for each trial
-    Sindiv = []; Tindiv = []; FRindiv = []; FRSindiv = [];
-    for ii = 1:numTrial;
-        idx = spike_idx(trial(spike_idx)==ii);
-        [spikeCount, occTime, firing_rate, firing_rate_sth]...
-            = calc_spatial_firingrate(idx, posx, trial, ii, [], trackEnd);
-        Sindiv(ii,:) = spikeCount;
-        Tindiv(ii,:) = occTime;
-        FRindiv(ii,:) = firing_rate;
-        FRSindiv(ii,:) = firing_rate_sth;
+    % filter out slow speed frame if needed
+    if filterspeed
+        Lia = ismember(spike_idx, slowf);
+        spike_idx(Lia) = [];
+        % for cell k, iteratively calculate the firing rate for each trial
+        Sindiv = []; Tindiv = []; FRindiv = []; FRSindiv = [];
+        for ii = 1:numTrial
+            idx = spike_idx(trial(spike_idx)==ii);
+            [spikeCount, occTime, firing_rate, firing_rate_sth]...
+                = calc_spatial_firingrate(idx, posxf, post, trial, ii, [], trackEnd);
+            Sindiv(ii,:) = spikeCount;
+            Tindiv(ii,:) = occTime;
+            FRindiv(ii,:) = firing_rate;
+            FRSindiv(ii,:) = firing_rate_sth;
+        end
+        S{k} = Sindiv;
+        T = Tindiv;
+        FR{k} = FRindiv;
+        FRS{k} = FRSindiv;
+        % calculate trial by trial correlations for one cell 
+        corrMatrix(:,:,k) = corr(FRSindiv');
+        % calculate correlations across blocks of trials (every 10 trials)
+        [Sindiv_block, Tindiv_block, FRindiv_block, FRSindiv_block]...
+            = calc_spatial_firingrate_block(Sindiv, Tindiv, trials_per_block);
+        S_block{k} = Sindiv_block;
+        T_block = Tindiv_block;
+        FR_block{k} = FRindiv_block;
+        FRS_block{k} = FRSindiv_block;
+        % calculate trial block by trial block correlations for one cell 
+        corrBlock(:,:,k) = corr(FRSindiv_block');
+    else
+        Sindiv = []; Tindiv = []; FRindiv = []; FRSindiv = [];
+        for ii = 1:numTrial
+            idx = spike_idx(trial(spike_idx)==ii);
+            [spikeCount, occTime, firing_rate, firing_rate_sth]...
+                = calc_spatial_firingrate(idx, posx, post, trial, ii, [], trackEnd);
+            Sindiv(ii,:) = spikeCount;
+            Tindiv(ii,:) = occTime;
+            FRindiv(ii,:) = firing_rate;
+            FRSindiv(ii,:) = firing_rate_sth;
+        end
+        S{k} = Sindiv;
+        T = Tindiv;
+        FR{k} = FRindiv;
+        FRS{k} = FRSindiv;
+        % calculate trial by trial correlations for one cell 
+        corrMatrix(:,:,k) = corr(FRSindiv');
+        % calculate correlations across blocks of trials (every 10 trials)
+        [Sindiv_block, Tindiv_block, FRindiv_block, FRSindiv_block]...
+            = calc_spatial_firingrate_block(Sindiv, Tindiv, trials_per_block);
+        S_block{k} = Sindiv_block;
+        T_block = Tindiv_block;
+        FR_block{k} = FRindiv_block;
+        FRS_block{k} = FRSindiv_block;
+        % calculate trial block by trial block correlations for one cell 
+        corrBlock(:,:,k) = corr(FRSindiv_block');
     end
-    S{k} = Sindiv;
-    T = Tindiv;
-    FR{k} = FRindiv;
-    FRS{k} = FRSindiv;
-    % calculate trial by trial correlations for one cell 
-    corrMatrix(:,:,k) = corr(FRSindiv');
-
-    % calculate correlations across blocks of trials (every 10 trials)
-    [Sindiv_block, Tindiv_block, FRindiv_block, FRSindiv_block]...
-        = calc_spatial_firingrate_block(Sindiv, Tindiv, trials_per_block);
-    S_block{k} = Sindiv_block;
-    T_block = Tindiv_block;
-    FR_block{k} = FRindiv_block;
-    FRS_block{k} = FRSindiv_block;
-    % calculate trial block by trial block correlations for one cell 
-    corrBlock(:,:,k) = corr(FRSindiv_block');
 end
 
 %plot for averaged correlation
