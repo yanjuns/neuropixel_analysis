@@ -38,10 +38,10 @@ occTime = time_per_bin * TimeBin;
 spikeCount = histcounts(posx(idx), binedges);
 firing_rate = spikeCount./occTime;
 
-% % interpolate missing values
-% if sum(isnan(firing_rate))>0
-%     firing_rate = interp1(find(~isnan(firing_rate)),firing_rate(~isnan(firing_rate)),1:numel(firing_rate));
-% end
+% interpolate missing values
+if sum(isnan(firing_rate))>0 && sum(~isnan(firing_rate))>2
+    firing_rate = interp1(find(~isnan(firing_rate)),firing_rate(~isnan(firing_rate)),1:numel(firing_rate));
+end
 
 % gaussian filter for smoothing
 smoothSigma = SmoothSigmaFR/SpatialBin;

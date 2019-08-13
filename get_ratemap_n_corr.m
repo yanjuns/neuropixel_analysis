@@ -36,12 +36,12 @@ end
 load(fullfile(matPath), 'post','posx','sp','trial'); 
 
 % load params file
-% if ~exist('paramsPath','var')
-%     addpath(genpath('C:\Users\yanjuns\Desktop\MATLAB_code_Git\neuropixel_analysis'));
-%     params = readtable('UniversalParams.xlsx');
-% else
-%     params = readtable(paramsPath);
-% end
+if ~exist('paramsPath','var')
+%     paramsPath = '\\oak-smb-giocomo.stanford.edu\groups\giocomo\ysun\Neuropixels\UniversalParams.xlsx';
+    params = readtable('UniversalParams.xlsx'); %make sure the file is on the path
+else
+    params = readtable(paramsPath);
+end
 
 %% calculate firing rates for only good cells
 cells_to_plot = sp.cids(sp.cgs==2); 
@@ -50,7 +50,7 @@ nCells = size(cells_to_plot, 2);
 %% Calculate firing rates
 % specify inputs into the firing rates calculation
 trackEnd = trackLength;
-% p = params;
+p = params;
 
 % calculate the firing rate for a single cell across all trials
 S = cell(1,nCells);
