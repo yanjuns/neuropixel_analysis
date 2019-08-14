@@ -1,11 +1,12 @@
 %% Neuropixel data analysis streamline
 %% define trials for each animal
 bslTrials = [1:90]; %specify for each particular mouse 
-methTrials = [101:136]; %specify for each particular mouse 
+methTrials = [101:160]; %specify for each particular mouse 
 %% Get firing rate map and rate map correlation for each neuron
 matPath = 'C:\Users\yanjuns\Desktop\Yanjun Data\Miniscope_CPP_analysis\Neuropixels\E1_190619_johnrepeatingtrack_train100+meth37.mat'
 trackLength = 640 %John Wen's extended track
 trials_per_block = 10;
+load(matPath);
 [S, T, FR, FRS, corrMatrix, S_block, T_block, FR_block, FRS_block, corrBlock, cellID, speed]...
     = get_ratemap_n_corr(matPath, trackLength, trials_per_block, true);
 % get mean firing rate for each cell and each trial
@@ -48,7 +49,8 @@ ylabel('Avg Firing Rate of all neurons (Hz)');
 hold on;
 yyaxis right;
 plot(speedbytrial);
-ylabel('Speed (cm/s)')
+ylabel('Speed (cm/s)');
+saveas(gcf, 'meanFRnSpeed.fig');
 
 % test if mean firing rate significantly changed
 bls = mean(meanFR(:, bslTrials),2);
@@ -74,4 +76,8 @@ for ii = 1:binsize:max(trial)
 end
 [h,p] = ttest2(FR_speed_corr(1:ceil(max(bslTrials)/10),:), FR_speed_corr(11:ceil(max(methTrials)/10),:))
 
+%% analyze lick behavior
+load(matPath);
+[lick_idx, lickMat, lickAccByTrial] = plot_lick_behav(lickt, lickx, post, posx, trial);
 
+%% some further analysis

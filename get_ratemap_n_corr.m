@@ -142,10 +142,13 @@ imagesc(avg_corrMatrix);
 axis square;
 colormap pink;
 xlabel('Trials');
+saveas(gcf,'singleTrialCorr.fig');
+
 figure;
 imagesc(avg_corrblock);
 axis square;
 colormap pink;
 xlabel('Trials chunks');
+saveas(gcf,'trialChunkCorr.fig');
 
 end
