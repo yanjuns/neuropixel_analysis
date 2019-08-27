@@ -66,8 +66,8 @@ corrBlock = [];
 numTrial = max(trial);
 speed = calcSpeed(posx,post);
 %prepare for filtering slow speed frames
-posxf = posx; posxf(speed < speedthresh) = NaN; 
-slowf = find(speed < speedthresh);
+posxf = posx; posxf(speed <= speedthresh) = NaN; 
+slowf = find(speed <= speedthresh);
 
 for k = 1:nCells
     fprintf('cell %d (%d/%d)\n',cells_to_plot(k),k,numel(cells_to_plot));

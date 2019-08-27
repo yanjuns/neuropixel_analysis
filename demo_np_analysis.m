@@ -1,7 +1,7 @@
 %% Neuropixel data analysis streamline
 %% define trials for each animal
 bslTrials = [1:90]; %specify for each particular mouse 
-methTrials = [101:160]; %specify for each particular mouse 
+methTrials = [101:136]; %specify for each particular mouse 
 %% Get firing rate map and rate map correlation for each neuron
 matPath = 'C:\Users\yanjuns\Desktop\Yanjun Data\Miniscope_CPP_analysis\Neuropixels\E1_190619_johnrepeatingtrack_train100+meth37.mat'
 trackLength = 640 %John Wen's extended track
@@ -80,4 +80,15 @@ end
 load(matPath);
 [lick_idx, lickMat, lickAccByTrial] = plot_lick_behav(lickt, lickx, post, posx, trial);
 
-%% some further analysis
+%% identify speed cells
+% calculate speedscore, intercept, and slop of speed related coding
+speedinfo = speed_score(speed, post, sp, trial, trial_range);
+% shuffling spikes to get a threshold for determine speed cells
+tic;
+speedthresh = speed_score_shuffle(speed, post, sp, trial, trial_range);
+toc;
+% identify speed cells
+idx = (speedinfo.SpeedScore > speedthresh);
+speedcell = speedinfo(idx, :)
+save('speedcell.mat', 'speedcell', 'speedinfo');
+
