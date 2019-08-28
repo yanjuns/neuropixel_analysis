@@ -133,49 +133,23 @@ ylabel('Speed (cm/s)');
 title('Negative Speed Cells');
 saveas(gcf, 'meanFRnSpeedmod.fig');
 
-%% plot correlation for nonspeed and speed cells
+%% plot correlation
 corr_speed = corrMatrix(:,:,speedidx); corr_speed_blk = corrBlock(:,:,speedidx); 
 corr_negspeed = corrMatrix(:,:,negspeedidx); corr_negspeed_blk = corrBlock(:,:,negspeedidx); 
 corr_nonspeed = corrMatrix(:,:,nonspeedcell); corr_nonspeed_blk = corrBlock(:,:,nonspeedcell); 
 figure;
 subplot(2,2,1);
-imagesc(nanmean(corrMatrix, 3));
-axis square;
-title('All Neurons');
-subplot(2,2,2);
-imagesc(nanmean(corr_nonspeed, 3));
-axis square;
-title('Non-speed Cells');
-subplot(2,2,3);
 imagesc(nanmean(corr_speed, 3));
 axis square;
-title('Speed Cells');
-subplot(2,2,4);
-imagesc(nanmean(corr_negspeed, 3));
-axis square;
-title('Negative Speed Cells');
-saveas(gcf, 'singleTrialCorr_Speedmod.fig');
-
-figure;
-subplot(2,2,1);
-imagesc(nanmean(corrBlock, 3));
-axis square;
 title('All Neurons');
-subplot(2,2,2);
-imagesc(nanmean(corr_nonspeed_blk, 3));
-axis square;
-title('Non-speed Cells');
-subplot(2,2,3);
-imagesc(nanmean(corr_speed_blk, 3));
-axis square;
-title('Speed Cells');
-subplot(2,2,4);
-imagesc(nanmean(corr_negspeed_blk, 3));
-axis square;
-title('Negative Speed Cells');
-saveas(gcf, 'trialChunkCorr_Speedmod.fig');
+
+
+
+
+
 
 %% plot rate map of non-speed and speed cells(optional)
 cellnumber = (1:length(FRS))';
-cellnumber = cellnumber(negspeedidx);
+cellnumber = cellnumber(nonspeedcell);
 plot_ratemap(FRS, cellID, cellnumber);
+

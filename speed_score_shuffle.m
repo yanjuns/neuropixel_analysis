@@ -65,11 +65,15 @@ parfor iter = 1:nboot
     speedshuff = [speedshuff;speedboot];
 end
 %% output final results as a table
-speedthresh = quantile(speedshuff, 0.99);
+speedthresh = [];
+speedthresh(1,1) = quantile(speedshuff, 0.01);
+speedthresh(1,2) = quantile(speedshuff, 0.99);
 figure;
 histogram(speedshuff);
 hold on;
-line([speedthresh, speedthresh], get(gca,'ylim'), 'LineStyle','--','Color','r','LineWidth',1);
-text(speedthresh+0.005,range(ylim)/2,['Thresh = ',num2str(speedthresh,'%.3f')],'Color','red','FontSize',8)
+line([speedthresh(1,2), speedthresh(1,2)], get(gca,'ylim'), 'LineStyle','--','Color','r','LineWidth',1);
+text(speedthresh(1,2)+0.005,range(ylim)/1.5,['Thresh = ',num2str(speedthresh(1,2),'%.3f')],'Color','red','FontSize',8)
+line([speedthresh(1,1), speedthresh(1,1)], get(gca,'ylim'), 'LineStyle','--','Color','g','LineWidth',1);
+text(speedthresh(1,1)+0.005,range(ylim)/1.5,['Thresh = ',num2str(speedthresh(1,1),'%.3f')],'Color','green','FontSize',8)
 
 end

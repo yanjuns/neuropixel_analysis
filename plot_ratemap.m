@@ -47,7 +47,7 @@ hold on;
     for jj = (n*nperfig+1) : (n*nperfig+nperfig)
         cellnum = cellnumber(jj);
         k = k+1;
-        firingRateSmoothing = FRS{jj};
+        firingRateSmoothing = FRS{cellnum};
         x = size(firingRateSmoothing,2);
         y = size(firingRateSmoothing,1);
         maxCount = scale;
@@ -75,7 +75,7 @@ hold on;
             end
         end
 
-        if jj == max(cellnumber)
+        if jj == length(cellnumber)
             break
         end
     end
