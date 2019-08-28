@@ -1,4 +1,4 @@
-function speedthresh = speed_score_shuffle(speed, post, sp, trial, trial_range, p)
+function speedthresh = speed_score_shuffle(speed, post, sp, trial, trial_range, nboot, p)
 % function to calculate speed score in VR using linear fit
 % inputs
 %     speed: animal's running speed (real coords), obtained from calcSpeed
@@ -23,7 +23,9 @@ else
     SpeedCutoff = p.SpeedCutoff;
     TimeBin = p.TimeBin;
 end
-
+if ~exist('nboot', 'var') || isempty(nboot)
+    nboot = 100;
+end
 smoothSigma = 20;
 %% calculate instantanenous speed in specified trials
 trialstart = find(trial == min(trial_range), 1);
@@ -35,7 +37,7 @@ select = speed > SpeedCutoff;
 speedFilt = speed(select);
 
 %% calculate instantaneous fr in specified trials for each neuron
-nboot = 100;
+% nboot = 100;
 deltaT = randi([30,round(max(post))-30],nboot,1);
 cells_to_plot = sp.cids(sp.cgs==2); 
 nCells = size(cells_to_plot, 2);

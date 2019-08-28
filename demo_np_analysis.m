@@ -177,5 +177,5 @@ saveas(gcf, 'trialChunkCorr_Speedmod.fig');
 
 %% plot rate map of non-speed and speed cells(optional)
 cellnumber = (1:length(FRS))';
-cellnumber = cellnumber(negspeedidx);
+cellnumber = cellnumber(nonspeedcell);
 plot_ratemap(FRS, cellID, cellnumber);
