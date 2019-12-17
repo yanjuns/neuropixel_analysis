@@ -3,7 +3,7 @@
 bslTrials = [1:100]; %specify for each particular mouse 
 methTrials = [101:200]; %specify for each particular mouse 
 %% Get firing rate map and rate map correlation for each neuron
-matPath = 'C:\Users\yanjuns\Desktop\Yanjun Data\Miniscope_CPP_analysis\Neuropixels\E1_190619_johnrepeatingtrack_train100+meth37.mat'
+matPath = 'D:\Giocomo_Neuropixels_analysis\K2_191118_MEC\K2_191118_johncontrasttrack5_baseline50+mockinjx50+meth100.mat'
 trackLength = 320 %John Wen's extended track
 trials_per_block = 10;
 load(matPath);
