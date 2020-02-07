@@ -3,7 +3,7 @@
 bslTrials = [1:100]; %specify for each particular mouse 
 methTrials = [101:200]; %specify for each particular mouse 
 %% Get firing rate map and rate map correlation for each neuron
-matPath = 'D:\Giocomo_Neuropixels_analysis\K2_191118_MEC\K2_191118_johncontrasttrack5_baseline50+mockinjx50+meth100.mat'
+matPath = 'D:\Giocomo_Neuropixels_analysis\K1_191128_MEC\K1_191128_johncontrasttrack5_baseline50+mockinjx50+meth100.mat'
 trackLength = 320 %John Wen's extended track
 trials_per_block = 10;
 load(matPath);
@@ -55,6 +55,8 @@ saveas(gcf, 'meanFRnSpeed.fig');
 % test if mean firing rate significantly changed
 bls = mean(meanFR(:, bslTrials),2);
 meth = mean(meanFR(:, methTrials),2);
+% bls = mean(meanFR(nonspeedcell, bslTrials),2);
+% meth = mean(meanFR(nonspeedcell, methTrials),2);
 [p,h] = signrank(bls, meth)
 % test speed difference
 [h,p] = ttest2(speedbytrial(bslTrials), speedbytrial(methTrials))
@@ -92,10 +94,10 @@ speedidx = (speedinfo.SpeedScore > speedthresh(1,2));
 negspeedidx = (speedinfo.SpeedScore < speedthresh(1,1));
 speedinfo.speedidx = speedidx;
 speedinfo.negspeedidx = negspeedidx;
-save('speedcell.mat','speedinfo','speedidx','negspeedidx');
-
-%% find speed and non-speed cells and plot meanFR and correlation
 nonspeedcell = ~speedidx & ~negspeedidx;
+save('speedcell.mat','speedinfo','speedidx','negspeedidx', 'nonspeedcell');
+
+%% find speed and non-speed cells and plot meanFR
 %plot meanFR vs speed
 figure;
 hold on;
@@ -133,6 +135,28 @@ ylabel('Speed (cm/s)');
 title('Negative Speed Cells');
 saveas(gcf, 'meanFRnSpeedmod.fig');
 
+% calculate averaged mean firing rate of selected baseline trials and meth trials
+load('ratemap_n_corr.mat')
+load('speedcell.mat')
+bslT = 41:90; % selected number of sub trials if needed
+methT = 101:120;
+% for all the neurons
+bslFR = mean(meanFR(:, bslT),2);
+methFR = mean(meanFR(:, methT),2);
+% for non-speed cells
+bslFR_nonsp = mean(meanFR(nonspeedcell, bslT),2);
+methFR_nonsp = mean(meanFR(nonspeedcell, methT),2);
+% for speed cells
+bslFR_sp = mean(meanFR(speedidx, bslT),2);
+methFR_sp = mean(meanFR(speedidx, methT),2);
+% for negative speed cells
+bslFR_negsp = mean(meanFR(negspeedidx, bslT),2);
+methFR_negsp = mean(meanFR(negspeedidx, methT),2);
+save('FR_groupmean.mat', 'bslFR', 'methFR', 'bslFR_nonsp', 'methFR_nonsp',...
+    'bslFR_sp', 'methFR_sp', 'bslFR_negsp', 'methFR_negsp')
+figure;
+plotSpread([bslFR_nonsp,methFR_nonsp])
+[h,p] = signrank(bslFR_nonsp, methFR_nonsp)
 %% plot correlation for nonspeed and speed cells
 corr_speed = corrMatrix(:,:,speedidx); corr_speed_blk = corrBlock(:,:,speedidx); 
 corr_negspeed = corrMatrix(:,:,negspeedidx); corr_negspeed_blk = corrBlock(:,:,negspeedidx); 
