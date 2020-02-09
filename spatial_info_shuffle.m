@@ -73,8 +73,8 @@ spike_tall = {};
 for jj = 1:nCells
     spike_t1 = sp.st(sp.clu==cells_to_plot(jj));
     spike_t1 = spike_t1(spike_t1 <= max(post));
-    [~,~,idx] = histcounts(spike_t1,post);
-    Lia = ~ismember(idx, slowf);
+    [~,~,spidx] = histcounts(spike_t1,post);
+    Lia = ~ismember(spidx, slowf);
     spike_tpass = spike_t1(Lia);
     spike_tall{jj} = spike_tpass;
 end
@@ -108,8 +108,8 @@ parfor iter = 1:nboot
 end
 toc
 %% output final results as a table
-bitpsecthresh = quantile(bitpsecboot, 0.95, 2);
-bitpspikethresh = quantile(bitpspikeboot, 0.95, 2);
+bitpsecthresh = quantile(bitpsecboot, 0.99, 2);
+bitpspikethresh = quantile(bitpspikeboot, 0.99, 2);
 spatialcell_sec = find(bitpsec > bitpsecthresh);
 spatialcell_spike = find(bitpspike > bitpspikethresh);
 % output final results into a table

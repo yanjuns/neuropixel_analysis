@@ -3,7 +3,7 @@
 bslTrials = [1:100]; %specify for each particular mouse 
 methTrials = [101:200]; %specify for each particular mouse 
 %% Get firing rate map and rate map correlation for each neuron
-matPath = 'D:\Giocomo_Neuropixels_analysis\K1_191128_MEC\K1_191128_johncontrasttrack5_baseline50+mockinjx50+meth100.mat'
+matPath = 'D:\Giocomo_Neuropixels_analysis\J3_191109_HPC\J3_191109_johncontrasttrack5_baseline50+mockinjx50+meth100.mat'
 trackLength = 320 %John Wen's extended track
 trials_per_block = 10;
 load(matPath);
@@ -207,8 +207,18 @@ plot_ratemap(FRS, cellID, cellnumber);
 %% identify spatial cells by using spatial information
 load(matPath);
 load('ratemap_n_corr.mat');
-trial_range = 1:100; %trials that used to define spatial cells
+trial_range = [1:50]; %trials that used to define spatial cells
 [spatialcell_sec, spatialcell_spike, avgFR, Tinfo] = ...
     spatial_info_shuffle(S, T, speed, post, posx, sp, trial, trackLength, trial_range);
-
+highfcell = find(avgFR >= 0.1);
+% add an additional constraint by using the correlation
+half1 = 1:max(trial_range)/2; half2 = max(half1)+1:max(trial_range);
+stability = [];
+for ii = 1:length(FRS)
+    sta = corr2(FRS{ii}(half1,:),FRS{ii}(half2,:));
+    stability(ii,1) = sta;
+end
+stablecell = find(stability > 0.4);
+placecell = intersect(intersect(spatialcell_spike,stablecell),highfcell);
+save('placecell.mat', 'placecell','Tinfo');
 
