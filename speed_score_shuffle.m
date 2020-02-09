@@ -24,7 +24,7 @@ else
     TimeBin = p.TimeBin;
 end
 if ~exist('nboot', 'var') || isempty(nboot)
-    nboot = 100;
+    nboot = 1000;
 end
 smoothSigma = 20;
 %% calculate instantanenous speed in specified trials

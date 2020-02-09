@@ -68,12 +68,14 @@ speed = calcSpeed(posx,post);
 %prepare for filtering slow speed frames
 posxf = posx; posxf(speed <= speedthresh) = NaN; 
 slowf = find(speed <= speedthresh);
+% spike_tmap = zeros(nCells, length(post)); %if need build a spike vs. time matrix for all neurons
 
 for k = 1:nCells
     fprintf('cell %d (%d/%d)\n',cells_to_plot(k),k,numel(cells_to_plot));
     % get spike times and index into post for cell k 
     spike_t = sp.st(sp.clu==cells_to_plot(k)); 
     [~,~,spike_idx] = histcounts(spike_t,post);
+%     spike_tmap(k,spike_idx) = 1; %if need build a spike vs. time matrix for all neurons
 %     [~,~,spikeTrial_idx] = histcounts(spike_t,trial); % NOT SURE IF WE STILL NEED THIS
     % filter out slow speed frame if needed
     if filterspeed
