@@ -72,7 +72,7 @@ cells_to_plot = sp.cids(sp.cgs==2);
 spike_tall = {};
 for jj = 1:nCells
     spike_t1 = sp.st(sp.clu==cells_to_plot(jj));
-    spike_t1 = spike_t1(spike_t1 <= max(post));
+    spike_t1 = spike_t1(spike_t1 <= max(post) & spike_t1 >= min(post));
     [~,~,spidx] = histcounts(spike_t1,post);
     Lia = ~ismember(spidx, slowf);
     spike_tpass = spike_t1(Lia);
@@ -81,7 +81,7 @@ end
 
 %% shuffle
 bitpsecboot = []; bitpspikeboot = [];
-deltaT = randi([20,round(max(post))-20],nboot,1);
+deltaT = randi([20,round(max(post)-min(post))-20],nboot,1);
 binedges = TrackStart:SpatialBin:TrackEnd;
 Tboot = repmat(Td,nCells,1);
 tic
@@ -92,7 +92,7 @@ parfor iter = 1:nboot
             spike_t = spike_tall{k};
             spike_tboot = spike_t + dT;
             idx = spike_tboot > max(post);
-            spike_tboot(idx) = spike_tboot(idx) - max(post);
+            spike_tboot(idx) = spike_tboot(idx) - max(post) + min(post);
             spike_t = sort(spike_tboot); % sort shuffled spikes
             [~,~,spike_idx] = histcounts(spike_t,post);
             % count spikes into bins

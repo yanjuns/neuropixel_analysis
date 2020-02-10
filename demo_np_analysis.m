@@ -204,9 +204,11 @@ cellnumber = (1:length(FRS))';
 cellnumber = cellnumber(nonspeedcell);
 plot_ratemap(FRS, cellID, cellnumber);
 
-%% identify spatial cells by using spatial information
+%% spatial cell analysis
+% identify spatial cells by using spatial information
 load(matPath);
 load('ratemap_n_corr.mat');
+trackLength = 320; %John Wen's track
 trial_range = [1:50]; %trials that used to define spatial cells
 [spatialcell_sec, spatialcell_spike, avgFR, Tinfo] = ...
     spatial_info_shuffle(S, T, speed, post, posx, sp, trial, trackLength, trial_range);
@@ -220,5 +222,16 @@ for ii = 1:length(FRS)
 end
 stablecell = find(stability > 0.4);
 placecell = intersect(intersect(spatialcell_spike,stablecell),highfcell);
-save('placecell.mat', 'placecell','Tinfo');
+save('placecell.mat', 'placecell','Tinfo','avgFR');
+% plot place cells rate map
+plot_ratemap(FRS, cellID, placecell');
+% calculate firing rate changes of place cells
+meanFR_pc = meanFR(placecell,:);
+figure;
+plot(mean(meanFR_pc))
+
+corrBlock_pc = corrBlock(:,:,placecell);
+figure;
+imagesc(nanmean(corrBlock_pc,3))
+save('placecell.mat', 'meanFR_pc','corrBlock_pc', '-append');
 
