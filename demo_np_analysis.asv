@@ -220,7 +220,7 @@ for ii = 1:length(FRS)
     sta = corr2(FRS{ii}(half1,:),FRS{ii}(half2,:));
     stability(ii,1) = sta;
 end
-stablecell = find(stability > 0.12); %0.2 for MEC, 0.4 for HPC
+stablecell = find(stability > 0.2); %0.2 for MEC, 0.4 for HPC
 placecell = intersect(intersect(spatialcell_spike,stablecell),highfcell);
 save('placecell.mat', 'placecell','Tinfo','avgFR');
 % plot place cells rate map
