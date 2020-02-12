@@ -98,15 +98,45 @@ colorbar
 xlabel('Trial block (10 trials avg / block)')
 ylabel('Trial block (10 trials avg / block)')
 
+% spatial information
+bitpspike_pc = [];bitpspike_pc_meth = [];
+for ii = 1:length(data_loc_mec)
+    cd(data_loc_mec{ii,1});
+    load('placecell.mat');
+    bitpspike_pc = [bitpspike_pc; Tinfo.bitpspike(placecell)];
+    bitpspike_pc_meth = [bitpspike_pc_meth; Tinfo_meth.bitpspike(placecell)];
+end
+save('spatialcell_analysis.mat', 'bitpspike_pc','bitpspike_pc_meth','-append')
+
+[p,h] = signrank(bitpspike_pc,bitpspike_pc_meth)
+figure;
+h = boxplot([bitpspike_pc,bitpspike_pc_meth], 'Color', ['b', 'r'], 'Symbol', ['o','k']);
+set(h,{'linew'},{1});
+ylim([0, 1.4])
+xticklabels({'Baseline','Meth'})
+ylabel('Spatial information (bits / spike)')
+text(1.8,1.2, ['P = ', num2str(p)]);
+
 %speed effect
-speedscore_pc = [];
+speedscore_pc = [];speedscore_pc_meth = [];
 for ii = 1:length(data_loc_mec)
     cd(data_loc_mec{ii,1});
     load('placecell.mat');
     load('speedcell.mat');
     speedscore_pc = [speedscore_pc; speedinfo.SpeedScore(placecell)];
+    speedscore_pc_meth = [speedscore_pc_meth; speedinfo_meth.SpeedScore(placecell)];
 end
-figure;
-histogram(speedscore_pc, 20)
+save('spatialcell_analysis.mat', 'speedscore_pc','speedscore_pc_meth','-append')
 
+[p,h] = signrank(speedscore_pc,speedscore_pc_meth)
+figure;
+histogram(speedscore_pc, [-1:0.1:0.6]);
+hold on
+histogram(speedscore_pc_meth, [-1:0.1:0.6]);
+line([0.1, 0.1], get(gca,'ylim'),'LineStyle','--','Color','g','LineWidth',2);
+xlabel('Speed score');
+ylabel('Num of cells');
+title('Speed tuning in spatial cells, baseline vs. meth');
+legend({'Baseline', 'Meth'});
+text(-0.6,20, ['P = ', num2str(p)]);
 

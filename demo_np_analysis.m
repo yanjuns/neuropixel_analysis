@@ -7,10 +7,10 @@ savepath = 'D:\Giocomo_Neuropixels_analysis\E2_190619_MEC_reformat'
 
 %% define trials for each animal
 bslTrials = [1:100]; %specify for each particular mouse 
-methTrials = [101:140]; %specify for each particular mouse 
+methTrials = [101:200]; %specify for each particular mouse 
 
 %% Get firing rate map and rate map correlation for each neuron
-matPath = 'D:\Giocomo_Neuropixels_analysis\E2_190619_MEC_reformat\E2_190619_MEC_reformat.mat'
+matPath = 'D:\Giocomo_Neuropixels_analysis\E1_190619_MEC_reformat\E1_190619_MEC_reformat.mat '
 load(matPath);
 trackLength = 320 %John Wen's extended track
 trials_per_block = 10;
@@ -104,6 +104,22 @@ speedinfo.negspeedidx = negspeedidx;
 nonspeedcell = ~speedidx & ~negspeedidx;
 save('speedcell.mat','speedinfo','speedidx','negspeedidx', 'nonspeedcell');
 
+% calculate speedscore, intercept, and slop of speed related coding for
+% meth trials
+tic
+speedinfo_meth = speed_score(speed, post, sp, trial, methTrials);
+% shuffling spikes to get a threshold for determine speed cells
+tic;
+speedthresh_meth = speed_score_shuffle(speed, post, sp, trial, methTrials);
+toc;
+% identify speed cells
+speedidx = (speedinfo_meth.SpeedScore > speedthresh_meth(1,2));
+negspeedidx = (speedinfo_meth.SpeedScore < speedthresh_meth(1,1));
+speedinfo_meth.speedidx = speedidx;
+speedinfo_meth.negspeedidx = negspeedidx;
+% nonspeedcell = ~speedidx & ~negspeedidx;
+save('speedcell.mat','speedinfo_meth', 'speedthresh_meth', '-append');
+toc
 %% find speed and non-speed cells and plot meanFR
 %plot meanFR vs speed
 figure;
@@ -242,7 +258,10 @@ figure;
 imagesc(nanmean(corrBlock_pc,3))
 save('placecell.mat', 'meanFR_pc','corrBlock_pc', '-append');
 
-% if place cells are also speed cells
-speedcell = cellID(speedidx);
-noverlap = intersect(placecell, speedcell)
+% place cells defined by meth session
+trackLength = 320; %John Wen's track
+trial_range = methTrials; %trials that used to define spatial cells
+[spatialcell_sec, spatialcell_spike, avgFR, Tinfo_meth] = ...
+    spatial_info_shuffle(S, T, speed, post, posx, sp, trial, trackLength, trial_range);
+save('placecell.mat', 'Tinfo_meth', '-append');
 
