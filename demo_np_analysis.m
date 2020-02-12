@@ -1,12 +1,19 @@
 %% Neuropixel data analysis streamline
+%% reformat data if necessary, OPTIONAL
+matPath2reform = 'D:\Giocomo_Neuropixels_analysis\E2_190619_MEC\E2_190619_johnrepeatingtrack_train100+meth21.mat'
+load(matPath2reform);
+savepath = 'D:\Giocomo_Neuropixels_analysis\E2_190619_MEC_reformat'
+[posx,post,trial,sp] = reformat_rawdata (savepath, posx, post, trial, sp, [11,60,101,120]);
+
 %% define trials for each animal
 bslTrials = [1:100]; %specify for each particular mouse 
-methTrials = [101:200]; %specify for each particular mouse 
+methTrials = [101:140]; %specify for each particular mouse 
+
 %% Get firing rate map and rate map correlation for each neuron
-matPath = 'D:\Giocomo_Neuropixels_analysis\F3_190625_MEC_reformat\F3_190625_MEC_reformat.mat'
+matPath = 'D:\Giocomo_Neuropixels_analysis\E2_190619_MEC_reformat\E2_190619_MEC_reformat.mat'
+load(matPath);
 trackLength = 320 %John Wen's extended track
 trials_per_block = 10;
-load(matPath);
 [S, T, FR, FRS, corrMatrix, S_block, T_block, FR_block, FRS_block, corrBlock, cellID, speed]...
     = get_ratemap_n_corr(matPath, trackLength, trials_per_block, true);
 % get mean firing rate for each cell and each trial
@@ -62,21 +69,21 @@ meth = mean(meanFR(:, methTrials),2);
 [h,p] = ttest2(speedbytrial(bslTrials), speedbytrial(methTrials))
 
 %% look at the correlation between firing rate and speed
-% overall correlation
-corr(speedbytrial(:,bslTrials)', mean(meanFR(:,bslTrials))')
-corr(speedbytrial(:,methTrials)', mean(meanFR(:,methTrials))')
-% bin by bin correlation
-FR_speed_corr = [];
-binsize = 10; k = 0;
-for ii = 1:binsize:max(trial)
-    k = k+1;
-    if ii+binsize-1 < max(trial)
-        FR_speed_corr(k,:) = corr(speedbytrial(:,ii:ii+9)', mean(meanFR(:,ii:ii+9))');
-    else
-        FR_speed_corr(k,:) = corr(speedbytrial(:,ii:end)', mean(meanFR(:,ii:end))');
-    end
-end
-[h,p] = ttest2(FR_speed_corr(1:ceil(max(bslTrials)/10),:), FR_speed_corr(11:ceil(max(methTrials)/10),:))
+% % overall correlation
+% corr(speedbytrial(:,bslTrials)', mean(meanFR(:,bslTrials))')
+% corr(speedbytrial(:,methTrials)', mean(meanFR(:,methTrials))')
+% % bin by bin correlation
+% FR_speed_corr = [];
+% binsize = 10; k = 0;
+% for ii = 1:binsize:max(trial)
+%     k = k+1;
+%     if ii+binsize-1 < max(trial)
+%         FR_speed_corr(k,:) = corr(speedbytrial(:,ii:ii+9)', mean(meanFR(:,ii:ii+9))');
+%     else
+%         FR_speed_corr(k,:) = corr(speedbytrial(:,ii:end)', mean(meanFR(:,ii:end))');
+%     end
+% end
+% [h,p] = ttest2(FR_speed_corr(1:ceil(max(bslTrials)/10),:), FR_speed_corr(11:ceil(max(methTrials)/10),:))
 
 %% analyze lick behavior
 load(matPath);
@@ -136,27 +143,27 @@ title('Negative Speed Cells');
 saveas(gcf, 'meanFRnSpeedmod.fig');
 
 % calculate averaged mean firing rate of selected baseline trials and meth trials
-load('ratemap_n_corr.mat')
-load('speedcell.mat')
-bslT = 41:90; % selected number of sub trials if needed
-methT = 101:120;
-% for all the neurons
-bslFR = mean(meanFR(:, bslT),2);
-methFR = mean(meanFR(:, methT),2);
-% for non-speed cells
-bslFR_nonsp = mean(meanFR(nonspeedcell, bslT),2);
-methFR_nonsp = mean(meanFR(nonspeedcell, methT),2);
-% for speed cells
-bslFR_sp = mean(meanFR(speedidx, bslT),2);
-methFR_sp = mean(meanFR(speedidx, methT),2);
-% for negative speed cells
-bslFR_negsp = mean(meanFR(negspeedidx, bslT),2);
-methFR_negsp = mean(meanFR(negspeedidx, methT),2);
-save('FR_groupmean.mat', 'bslFR', 'methFR', 'bslFR_nonsp', 'methFR_nonsp',...
-    'bslFR_sp', 'methFR_sp', 'bslFR_negsp', 'methFR_negsp')
-figure;
-plotSpread([bslFR_nonsp,methFR_nonsp])
-[h,p] = signrank(bslFR_nonsp, methFR_nonsp)
+% load('ratemap_n_corr.mat')
+% load('speedcell.mat')
+% bslT = 41:90; % selected number of sub trials if needed
+% methT = 101:120;
+% % for all the neurons
+% bslFR = mean(meanFR(:, bslT),2);
+% methFR = mean(meanFR(:, methT),2);
+% % for non-speed cells
+% bslFR_nonsp = mean(meanFR(nonspeedcell, bslT),2);
+% methFR_nonsp = mean(meanFR(nonspeedcell, methT),2);
+% % for speed cells
+% bslFR_sp = mean(meanFR(speedidx, bslT),2);
+% methFR_sp = mean(meanFR(speedidx, methT),2);
+% % for negative speed cells
+% bslFR_negsp = mean(meanFR(negspeedidx, bslT),2);
+% methFR_negsp = mean(meanFR(negspeedidx, methT),2);
+% save('FR_groupmean.mat', 'bslFR', 'methFR', 'bslFR_nonsp', 'methFR_nonsp',...
+%     'bslFR_sp', 'methFR_sp', 'bslFR_negsp', 'methFR_negsp')
+% figure;
+% plotSpread([bslFR_nonsp,methFR_nonsp])
+% [h,p] = signrank(bslFR_nonsp, methFR_nonsp)
 %% plot correlation for nonspeed and speed cells
 corr_speed = corrMatrix(:,:,speedidx); corr_speed_blk = corrBlock(:,:,speedidx); 
 corr_negspeed = corrMatrix(:,:,negspeedidx); corr_negspeed_blk = corrBlock(:,:,negspeedidx); 
@@ -220,7 +227,7 @@ for ii = 1:length(FRS)
     sta = corr2(FRS{ii}(half1,:),FRS{ii}(half2,:));
     stability(ii,1) = sta;
 end
-stablecell = find(stability > 0.12); %0.2 for MEC, 0.4 for HPC
+stablecell = find(stability > 0.2); %0.2 for MEC, 0.4 for HPC
 placecell = intersect(intersect(spatialcell_spike,stablecell),highfcell);
 save('placecell.mat', 'placecell','Tinfo','avgFR');
 % plot place cells rate map
@@ -234,4 +241,8 @@ corrBlock_pc = corrBlock(:,:,placecell);
 figure;
 imagesc(nanmean(corrBlock_pc,3))
 save('placecell.mat', 'meanFR_pc','corrBlock_pc', '-append');
+
+% if place cells are also speed cells
+speedcell = cellID(speedidx);
+noverlap = intersect(placecell, speedcell)
 
